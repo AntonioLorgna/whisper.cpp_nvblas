@@ -1,4 +1,4 @@
-# whispe.cpp_nvblas
+# whisper.cpp_nvblas
 
 A simple implementation of nvblas, which is available to all users of NVIDIA cards,
 works only on linux systems, you can also run it on Windows 11 using WSL2.
