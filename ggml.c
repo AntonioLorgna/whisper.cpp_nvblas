@@ -113,6 +113,8 @@ typedef void* thread_ret_t;
 #include <Accelerate/Accelerate.h>
 #elif GGML_USE_OPENBLAS
 #include <cblas.h>
+// sgemm
+extern void sgemm_(char* transa, char* transb, int* m, int* n, int* k, float* alpha, float* a, int* lda, float* b, int* ldb, float* beta, float* c, int* ldc);
 #endif
 
 #undef MIN
@@ -4724,21 +4726,34 @@ static void ggml_compute_forward_mul_mat_f16_f32(
                 //}
 
                 {
-#if 1
-                    // zT = y * xT
-                    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasTrans,
-                            ne11, ne01, ne10,
-                            1.0f,    y, ne00,
-                                     x, ne00,
-                            0.0f,    d, ne01);
-#else
-                    // zT = (xT * y)T
-                    cblas_sgemm(CblasColMajor, CblasTrans, CblasNoTrans,
-                            ne01, ne11, ne10,
-                            1.0f,    x, ne00,
-                                     y, ne00,
-                            0.0f,    d, ne01);
-#endif
+                    #if GGML_USE_OPENBLAS
+                        float one = 1.0f;
+                        float zero = 0.0f;
+                        sgemm_(
+                            "T", "N",
+                            &ne0, &ne1, &ne10,
+                            &one,
+                            x, &ne10,
+                            y, &ne10,
+                            &zero,
+                            d, &ne0);
+                    #else
+                        #if 1
+                            // zT = y * xT
+                            cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasTrans,
+                                    ne11, ne01, ne10,
+                                    1.0f,    y, ne00,
+                                            x, ne00,
+                                    0.0f,    d, ne01);
+                        #else
+                            // zT = (xT * y)T
+                            cblas_sgemm(CblasColMajor, CblasTrans, CblasNoTrans,
+                                    ne01, ne11, ne10,
+                                    1.0f,    x, ne00,
+                                            y, ne00,
+                                    0.0f,    d, ne01);
+                        #endif
+                    #endif
                 }
             }
         }

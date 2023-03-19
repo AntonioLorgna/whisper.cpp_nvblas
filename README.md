@@ -1,3 +1,28 @@
+# whispe.cpp_nvblas
+
+A simple implementation of nvblas, which is available to all users of NVIDIA cards,
+works only on linux systems, you can also run it on Windows 11 using WSL2.
+
+To run, you need to install cuda (cuda-WSL), cuda-toolkit, libopenblas-dev.
+
+
+To build an executable file, it is enough:
+```bash
+sudo bash ./extras/nvconfig-build.sh
+mkdir build
+cd build
+cmake ..
+make
+```
+
+For start:
+```bash
+cd build
+NVBLAS_CONFIG_FILE=/etc/nvblas.conf LD_PRELOAD=/opt/cuda/lib64/libnvblas.so ./bin/main -m ../models/ggml-large.bin ../samples/jfk.wav
+```
+
+Otherwise, there are no differences from whisper.cpp.
+
 # whisper.cpp
 
 [![Actions Status](https://github.com/ggerganov/whisper.cpp/workflows/CI/badge.svg)](https://github.com/ggerganov/whisper.cpp/actions)
